@@ -3,11 +3,27 @@
 # TanNhatCMS/php-src @ PHP-7.4-CVE-2026-109618-109619 trên Ubuntu.
 # Đã kiểm chứng trên Ubuntu 24.04 (gcc 13.3, autoconf 2.71, bison 3.8.2, re2c 3.1).
 # Chạy:  ./build-linux.sh [thư-mục-cài-đặt]   (mặc định /opt/php74-cve)
+# Chạy được 2 kiểu: (a) script nằm trong thư mục source đã clone — build tại chỗ;
+# (b) chạy độc lập ở bất kỳ đâu — tự clone repo, checkout đúng nhánh rồi gọi lại
+# chính nó trong cây source. Build xong là CÀI LUÔN vào [thư-mục-cài-đặt].
 set -euo pipefail
 
 PREFIX="${1:-/opt/php74-cve}"
 BRANCH="PHP-7.4-CVE-2026-109618-109619"
-SRC_DIR="$(cd "$(dirname "$0")" && pwd)"   # script nằm trong thư mục source đã clone
+REPO_URL="https://github.com/TanNhatCMS/php-src.git"
+SELF_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+# --- Bootstrap: chưa ở trong cây source thì clone + checkout rồi exec bản trong cây
+if [ ! -f "$SELF_DIR/configure.ac" ]; then
+  SRC_DIR="${SRC_DIR:-$PWD/php-src}"
+  echo "==> Clone $REPO_URL -> $SRC_DIR"
+  [ -d "$SRC_DIR/.git" ] || git clone "$REPO_URL" "$SRC_DIR"
+  git -C "$SRC_DIR" fetch origin "$BRANCH"
+  git -C "$SRC_DIR" checkout "$BRANCH"
+  git -C "$SRC_DIR" pull --ff-only origin "$BRANCH" || true
+  exec "$SRC_DIR/build-linux.sh" "$@"
+fi
+SRC_DIR="$SELF_DIR"
 
 echo "==> Cai cong cu + thu vien (can sudo)"
 sudo apt-get update
