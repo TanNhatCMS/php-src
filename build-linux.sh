@@ -47,8 +47,9 @@ echo "==> buildconf"
 ./buildconf --force
 
 echo "==> configure -> $PREFIX"
-# PHP 8.x không dính lỗi RSA_SSLV23_PADDING của 7.4 (mục 2.4 của tài liệu).
-CFLAGS="-O2" ./configure --prefix="$PREFIX" \
+# -DRSA_SSLV23_PADDING=2: header OpenSSL mới (Ubuntu 24.04) đã gỡ hằng số này,
+# code 8.0 dùng không có #ifdef -> lỗi biên dịch ext/openssl. Xem BUILD-CVE...md mục 2.4.
+CFLAGS="-O2 -DRSA_SSLV23_PADDING=2" ./configure --prefix="$PREFIX" \
   --enable-cli --enable-fpm --enable-litespeed --disable-cgi --disable-phpdbg \
   --with-openssl --with-zlib --with-curl --with-sodium --with-readline \
   --enable-mbstring --with-zip --with-sqlite3 --with-pdo-sqlite \

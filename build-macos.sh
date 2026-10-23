@@ -80,7 +80,7 @@ echo "==> buildconf"
 echo "==> configure -> $PREFIX"
 export CPPFLAGS="-I$(brew --prefix)/include"
 export LDFLAGS="-L$(brew --prefix)/lib"
-CFLAGS="-O2 -Wno-implicit-function-declaration -Wno-implicit-int" \
+CFLAGS="-O2 -DRSA_SSLV23_PADDING=2 -Wno-implicit-function-declaration -Wno-implicit-int" \
 ./configure --prefix="$PREFIX" \
   --enable-cli --enable-fpm --enable-litespeed --disable-cgi --disable-phpdbg \
   --with-openssl="$(brew --prefix openssl@3)" --with-zlib \
